@@ -21,7 +21,7 @@ PATH  => %SPARK_HOME%/bin;%SPARK_HOME%/python;%PATH%
 
 
 import findspark
-findspark.init() 
+findspark.init()
 # you can also pass spark home path to init() method like below
 # findspark.init("/path/to/spark")
 
@@ -34,19 +34,19 @@ import glob
 
 flist = glob.glob( "ex2/*.py" )
 
-for fname in flist :    
+for fname in flist :
     with open(fname, mode='r') as fi :
         ll = fi.readlines()
 
     with open('fall.py', mode='a') as f0 :
-       f0.write("\n\n######################################################################################")    
+       f0.write("\n\n######################################################################################")
        f0.write("\n########" + fname + "##################################################\n")
        f0.writelines(ll)
-  
+
 
 ####################################################################################################
 ####################################################################################################
-       
+
 
 
 
@@ -148,13 +148,137 @@ StructField
 StructType
 
 
-#### pyspark.sql.functions module
-PandasUDFType
+
+
+##########################################################################
+#### pyspark.sql.functions module    #####################################
+date_add
+date_format
+date_sub
+date_trunc
+datediff
+dayofmonth
+dayofweek
+dayofyear
+add_months
+hour
+year
+weekofyear
+minute
+month
+months_between
+next_day
+from_unixtime
+from_utc_timestamp
+to_timestamp
+to_utc_timestamp
+current_date
+current_timestamp
+unix_timestamp
+second
+trunc   # Returns date truncated to the unit specified by the format.
+quarter
+window   ###   pyspark.sql.types.TimestampType.   w = df.groupBy(window("date", "5 seconds")).agg(sum("val").alias("sum"))
+last_day   #  Returns the last day of the month which the given date belongs to.
+
+
+
+#####  Numerics Operations #########################################
 abs
 acos
-add_months
+asin
+atan
+atan2
+log
+log10
+log1p
+log2
+tan
+tanh
+sin
+sinh
+sqrt
+cos
+cosh
+factorial
+exp
+pow
+cbrt   # Computes the cube-root of the given value.
+expm1
+rint     # double value that is closest in value to the argument and is equal to a mathematical integer.
+signum   #  Computes the signum of the given value.
+round
+floor
+ceil
+bround
+hypot(col1, col2)   # sqrt(a^2 + b^2)
+rand     ### rand uniform
+randn   # Generates a column with independent and identically distributed (i.i.d.) samples from the standard normal distribution.
+
+
+
+##### string  #######################################################
+rpad
+rtrim
+split
+trim
+substring
+substring_index
+regexp_extract
+regexp_replace
+upper
+lower
+lpad
+ltrim
+instr
+levenshtein()  # Levenstsin sds   df0.select(levenshtein('l', 'r').alias('d')).collect()
+locate         # Find position of elt in string
+translate   ### reaplce
+initcap  # to cap   Translate the first letter of each word to upper ca
+length  #Computes the character length of string data
+repeat  #  creates an array containing a column repeated count times.  df.select(repeat(df.s, 3).alias('s')).collect()
+reverse
+
+
+
+#### Aggregation  #####################################################
+avg
+stddev
+stddev_pop
+stddev_samp
+stddev
+stddev_pop
+stddev_samp
+sum
+sumDistinct
+variance
+kurtosis
+count
+countDistinct
+skewness
+max
+mean
+min
 approxCountDistinctD
 approx_count_distinct
+corr
+covar_pop   ## covaraince
+covar_samp  ### coariance sample
+var_pop
+var_samp
+
+
+
+
+##### Operations   ####################################################################
+isnan
+isnull
+expr   ### execute dynamically  df.select(expr("length(name)")).collect()
+when    # df.select(when(df['age'] == 2, 3).otherwise(4).alias("age")).collect()
+
+
+
+#### Array   #########################################################################
 array
 array_contains
 array_distinct
@@ -170,198 +294,136 @@ array_sort
 array_union
 arrays_overlap
 arrays_zip
-asc
-asc_nulls_first
-asc_nulls_last
-ascii
-asin
-atan
-atan2
-avg
-base64
-bin
-bitwiseNOT
-broadcast
-bround
-cbrt
-ceil
-coalesce
-col
-collect_list
-collect_set
-column
-concat
-concat_ws
-conv
-corr
-cos
-cosh
-count
-countDistinct
-covar_pop
-covar_samp
-crc32
-create_map
-cume_dist
-current_date
-current_timestamp
-date_add
-date_format
-date_sub
-date_trunc
-datediff
-dayofmonth
-dayofweek
-dayofyear
-decode
-degrees
-dense_rank
-desc
-desc_nulls_first
-desc_nulls_last
-element_at
-encode
-exp
-explode
-explode_outer
-expm1
-expr
-factorial
-first
-flatten
-floor
-format_number
-format_string
-from_json
-from_unixtime
-from_utc_timestamp
+sort_array
+element_at  ### arrdf.select(element_at(df.data, 1)).collect()ay
+
+sequence    # Generate a sequence of integers from start to stop, incrementing by step. If step is not set, incrementing by 1 if start is less than or equal to stop, otherwise -1.
+shuffle   ### Shuffle of the array
+size   ## len of array , df.select(size(df.data)).collect()
+slice  ###v Collection function: returns an array containing all the elements in x from index start (or starting from the end if start is negative) with the specified length.
+
+
+##### json   ###################################################
 get_json_object
-greatest
-grouping
-grouping_id
-hash
-hex
-hour
-hypot
-initcap
-input_file_name
-instr
-isnan
-isnull
+from_json
+schema_of_json
 json_tuple
-kurtosis
-lag
-last
-last_day
-lead
-least
-length
-levenshtein
-lit
-locate
-log
-log10
-log1p
-log2
-lower
-lpad
-ltrim
+to_json
+
+
+
+##### map, dictionnary   ####################################################################
+create_map  ## dictionnary key,value df.select(create_map('name', 'age').alias("map")).collect()
 map_concat
 map_from_arrays
 map_from_entries
 map_keys
 map_values
-max
-md5
-mean
 
-min
-minute
-monotonically_increasing_id
-month
-months_between
-nanvl
-next_day
-ntile
-pandas_udfE
+
+##### Ordering functions  #######################################################
+asc
+asc_nulls_first
+asc_nulls_last
+dense_rank
+desc
+desc_nulls_first
+desc_nulls_last
+
+
+
+#### Window   ######################################################################
+lag(col, count=1, default=None)  # Window function: returns the value that is offset rows before the current row
+lead(col, count=1, default=None)   #   Window function: returns the value that is offset rows after the current row,
 percent_rank
-posexplode
-posexplode_outer
+cume_dist   #  Window function: returns the cumulative distribution of values within a window partition
+ntile(n=4)  #Window function: returns the ntile group id (from 1 to n inclusive) in an ordered window partition.
+rank    # Window function: returns the rank of rows within a window partition.
 
-pow
-quarter
-radians
-rand
-randn
-rank
-regexp_extract
-regexp_replace
-repeat
-reverse
-rint
 
-round
+
+
+#### Column   ##################################################################
+concat(*col)      #  Concatenates multiple input columns together into a single column. The function works with strings, binary and
+concat_ws(sep=";", *col)   #  speration Concatenates multiple input string columns together into a single string column, using the given separator.
+collect_list   ##   df2.agg(collect_list('age')).collect()   Aggregate function: returns a list of objects with duplicates.
+collect_set    ###  Aggregate function: returns a set of objects with duplicate elements eliminated.
+explode   ## array --> column eDF.select(explode(eDF.intlist).alias("anInt")).collect()
+explode_outer   ### array --> column  Unlike explode, if the array/map is null or empty then null
+flatten   ## flatten array into flat  Collection function: creates a single array from an array of arrays
+greatest   # Returns the greatest value of the list of column name df.select(greatest(df.a, df.b, df.c).alias("greatest")).collect()
+least(col1, col2, col3)  # Returns the least value of the list of column names, skipping null values
+posexplode(col )  # Returns a new row for each element with position in the given array or map.  eDF.select(posexplode(eDF.intlist)).collect()
+posexplode_outer  ### explode array into new new row
+struct  ## new struct columns,  df.select(struct('age', 'name').alias("struct")).collect()
+
+
+#### Rows Agg operation  #######################################################
+grouping      #  df.cube("name").agg(grouping("name"), sum("age")).orderBy("name").show()
+grouping_id   # df.cube("name").agg(grouping_id(), sum("age")).orderBy("name").show()  returns the level of grouping,
+first   ###  1st row
+last    ###  last row
+
+
+
+
+
+format_number
+format_string
+PandasUDFType
+pandas_udfE   ## Vectorize UDF
+udf
+broadcast   #  Marks a DataFrame as small enough for use in broadcast joins.
+coalesce    ###
+
+
+col  ,  column #   a Column based on the given column name.
+input_file_name()   #Creates a string column for the file name of the current Spark task.
+lit
 row_number
-rpad
-rtrim
-schema_of_json
-second
-sequence
+monotonically_increasing_id
+spark_partition_id
+
+
+
+
+
+##### Encoding  ###################################################
+bin   ##  Returns the string representation of the binary value of the given column.
+encode
+decode
+conv    # Convert a number in a string column from one base to another.  Convert a number in a string column from one base to another.
+ascii
+base64
+hash
+hex
 sha1
 sha2
+md5
+unbase64
+unhex
+crc32
+soundex
+degrees
+
+
+#### bits operation  #############################################
 shiftLeft
 shiftRight
 shiftRightUnsigned
-shuffle
-signum
-sin
-sinh
-size
-skewness
+bitwiseNOT
 
 
-slice
-sort_array
-soundex
-spark_partition_id
-split
-sqrt
-stddev
-stddev_pop
-stddev_samp
-struct
-substring
-substring_index
-
-
-sum
-sumDistinct
-tan
-tanh
+#### Angles   ####################################################
+radians
 toDegreesD
 toRadiansD
-to_date
-to_json
-to_timestamp
-to_utc_timestamp
-translate
-trim
-trunc
-udf
-unbase64
-unhex
-unix_timestamp
-upper
-var_pop
-var_samp
-variance
-weekofyear
-when
-window
-year
 
 
-##### pyspark.sql.streaming module
+
+
+###################################################################
+##### pyspark.sql.streaming module  ################################
 StreamingQuery
 StreamingQueryManager
 DataStreamReader

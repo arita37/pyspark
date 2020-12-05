@@ -1,15 +1,43 @@
-
-
-
-
-
 ####################################################################################################
-####################################################################################################
-#####  RDD CheatSheet
+import findspark
+findspark.init()
+
+
+import pyspark
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import approx_count_distinct,collect_list
+from pyspark.sql.functions import collect_set,sum,avg,max,countDistinct,count
+from pyspark.sql.functions import first, last, kurtosis, min, mean, skewness
+from pyspark.sql.functions import stddev, stddev_samp, stddev_pop, sumDistinct
+from pyspark.sql.functions import variance,var_samp,  var_pop
+
+spark = SparkSession.builder.appName('SparkByExamples.com').getOrCreate()
+
+simpleData = [("James", "Sales", 3000),
+    ("Michael", "Sales",   4600),
+    ("Robert", "Sales",    4100),
+    ("Maria", "Finance",   3000),
+    ("James", "Sales",     3000),
+    ("Scott", "Finance",   3300),
+    ("Jen", "Finance",     3900),
+    ("Jeff", "Marketing",  3000),
+    ("Kumar", "Marketing", 2000),
+    ("Saif", "Sales", 4100)
+  ]
+schema = ["employee_name", "department", "salary"]
+
+
+df = spark.createDataFrame(data=simpleData, schema = schema)
+df.printSchema()
 
 
 
+
+
+#################################################################################################
 ########## Array Operations   ###################################################################
+from pyspark.sql import functions as F
+
 # Column Array - F.array(*cols)
 df = df.withColumn('full_name', F.array('fname', 'lname'))
 
@@ -33,7 +61,6 @@ df = df.groupBy('age').agg(F.collect_set('name').alias('person_names'))
 
 
 #######  Advanced Operations   #####################################################################
-
 # Repartition – df.repartition(num_output_partitions)
 df = df.repartition(1)
 
@@ -61,7 +88,7 @@ spark.read.text(path_to_data).select(from_json('value', schema))
 #### nested selection   #############################################################################
 df.select('name', 'family.children').show(truncate=False)
 df.select('name', col('family.spouses.name').alias('spouse_name')).show(truncate=False)
-df.select('name', map_from_arrays('family.spouses.name', 'family.spouses.alive')).show(truncate=False)
+df.select('name', F.map_from_arrays('family.spouses.name', 'family.spouses.alive')).show(truncate=False)
 
 
 
@@ -113,7 +140,7 @@ df = df.withColumn('status', F.lit('PASS'))
 # Construct a new dynamic column
 df = df.withColumn('full_name', F.when(
     (df.fname.isNotNull() & df.lname.isNotNull()), F.concat(df.fname, df.lname)
-).otherwise(F.lit('N/A'))
+).otherwise(F.lit('N/A')))
 
 
 # Pick which columns to keep, optionally rename some
@@ -207,14 +234,10 @@ df = df.withColumn('time_of_birth', F.to_timestamp('time_of_birth', 'yyyy-MM-dd 
 # Get second from date:     F.second(col)
 df = df.filter(F.year('date_of_birth') == F.lit('2017'))
 
-
 df = df.withColumn('three_days_after', F.date_add('date_of_birth', 3))
 df = df.withColumn('three_days_before', F.date_sub('date_of_birth', 3))
-
 df = df.withColumn('next_month', F.add_month('date_of_birth', 1))
-
 df = df.withColumn('days_between', F.datediff('start', 'end'))
-
 df = df.withColumn('months_between', F.months_between('start', 'end'))
 
 # Keep only rows where date_of_birth is between 2017-05-10 and 2018-07-21
@@ -232,7 +255,7 @@ df = df.filter(
 
 ######################################################################################
 ######## pyspark-aggregate.py##################################################
-Transforming Complex Data Types in Spark SQL
+#### Transforming Complex Data Types in Spark SQL
 
 
 from pyspark.sql.functions import *
@@ -251,11 +274,7 @@ def jsonToDataFrame(json, schema=None):
 # Using a struct
 schema = StructType().add("a", StructType().add("b", IntegerType()))       
 events = jsonToDataFrame("""
-{
-  "a": {
-     "b": 1
-  }
-}
+{ "a": { "b": 1 } }
 """, schema)
 
 display(events.select("a.b"))
@@ -267,23 +286,14 @@ display(events.select("a.b"))
 schema = StructType().add("a", MapType(StringType(), IntegerType()))
                           
 events = jsonToDataFrame("""
-{
-  "a": {
-     "b": 1
-  }
-}
+{ "a": { "b": 1 } }
 """, schema)
 
 display(events.select("a.b")) 
 
 
 events = jsonToDataFrame("""
-{
-  "a": {
-     "b": 1,
-     "c": 2
-  }
-}
+{ "a": { "b": 1, "c": 2 } }
 """)
 
 display(events.select("a.*"))
@@ -291,30 +301,20 @@ display(events.select("a.*"))
 
 
 events = jsonToDataFrame("""
-{
-  "a": 1,
-  "b": 2,
-  "c": 3
-}
+{ "a": 1, "b": 2, "c": 3 }
 """)
 
 
 
 events = jsonToDataFrame("""
-{
-  "a": 1,
-  "b": 2,
-  "c": 3
-}
+{ "a": 1, "b": 2, "c": 3 }
 """)
 
 
 #### Selecting a single array or map element - getItem() or square brackets (i.e. [ ]) can be used to select a single element out of an array or a map.
 
 events = jsonToDataFrame("""
-{
-  "a": [1, 2]
-}
+{ "a": [1, 2] }
 """)
 
 display(events.select(col("a").getItem(0).alias("x")))
@@ -323,9 +323,7 @@ display(events.select(col("a").getItem(0).alias("x")))
 
 
 events = jsonToDataFrame("""
-{
-  "a": "{\\"b\\":1}"
-}
+{ "a": "{\\"b\\":1}" }
 """)
 
 display(events.select(json_tuple("a", "b").alias("c")))
@@ -617,13 +615,6 @@ dfFromData3.printSchema()
 
 ######################################################################################
 ######## pyspark-create-list.py##################################################
-
-'''
-Created on Sat Jan 11 19:38:27 2020
-
- 
-'''
-
 import pyspark
 from pyspark.sql import SparkSession, Row
 from pyspark.sql.types import StructType,StructField, StringType
@@ -672,11 +663,6 @@ rdd = spark.sparkContext.parallelize(dept)
 
 ######################################################################################
 ######## pyspark-dataframe-repartition.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName('SparkByExamples.com') \
@@ -698,11 +684,6 @@ print(df4.rdd.getNumPartitions())
 
 ######################################################################################
 ######## pyspark-distinct.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import expr
@@ -738,11 +719,6 @@ dropDisDF.show(truncate=False)
 
 ######################################################################################
 ######## pyspark-drop-column.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
@@ -780,13 +756,6 @@ df.drop(*cols) \
 
 ######################################################################################
 ######## pyspark-empty-data-frame.py##################################################
-
-'''
-Created on Sat Jan 11 19:38:27 2020
-
- 
-'''
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField, StringType
@@ -816,13 +785,6 @@ df2.printSchema()
 
 ######################################################################################
 ######## pyspark-explode-array-map.py##################################################
-
-"""
-Created on Thu Oct 24 22:42:50 2019
-
-@author: Naveen
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName('pyspark-by-examples').getOrCreate()
@@ -832,7 +794,7 @@ arrayData = [
         ('Michael',['Spark','Java',None],{'hair':'brown','eye':None}),
         ('Robert',['CSharp',''],{'hair':'red','eye':''}),
         ('Washington',None,None),
-        ('Jefferson',['1','2'],{})
+        ('Jefferson',['1','2'],{}) ]
 
 df = spark.createDataFrame(data=arrayData, schema = ['name','knownLanguages','properties'])
 df.printSchema()
@@ -873,13 +835,6 @@ df.select(df.name,posexplode_outer(df.properties)).show()
 
 ######################################################################################
 ######## pyspark-explode-nested-array.py##################################################
-
-"""
-Created on Thu Oct 24 22:42:50 2019
-
-@author: Naveen
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import explode, flatten
@@ -907,13 +862,6 @@ df.select(df.name,flatten(df.subjects)).show(truncate=False)
 
 ######################################################################################
 ######## pyspark-filter.py##################################################
-
-"""
-Created on Sat Jun 13 21:08:30 2020
-
-@author: NNK
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField, StringType, IntegerType, ArrayType
@@ -968,12 +916,6 @@ df.filter(df.name.lastname == "Williams") \
 ######################################################################################
 ######## pyspark-groupby.py##################################################
 
-"""
-Created on Sun Jun 14 10:20:19 2020
-
-@author: prabha
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col,sum,avg,max
@@ -1023,13 +965,6 @@ df.groupBy("department") \
 
 ######################################################################################
 ######## pyspark-join.py##################################################
-
-"""
-Created on Sun Jun 14 10:20:19 2020
-
-@author: prabha
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col
@@ -1108,11 +1043,6 @@ joinDF2 = spark.sql("select * from EMP e INNER JOIN DEPT d ON e.emp_dept_id == d
 
 ######################################################################################
 ######## pyspark-lit.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 
@@ -1135,13 +1065,6 @@ df3.show(truncate=False)
 
 ######################################################################################
 ######## pyspark-orderby.py##################################################
-
-"""
-Created on Sat Jun 20 07:45:04 2020
-
-@author: NNK
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, asc,desc
@@ -1191,11 +1114,6 @@ spark.sql("select employee_name,department,state,salary,age,bonus from EMP ORDER
 
 ######################################################################################
 ######## pyspark-parallelize.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 
@@ -1213,16 +1131,10 @@ emptyRDD2 = rdd=spark.sparkContext.parallelize([])
 print(""+str(emptyRDD2.isEmpty()))
 
 
-
+df.show(truncate=False)
 
 ######################################################################################
-######## pyspark-pivot.py##################################################
-
-"""
- 
-"""
-
-import pyspark
+######## pyspark-pivot.py#############################################################
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import expr
 spark = SparkSession.builder.appName('SparkByExamples.com').getOrCreate()
@@ -1251,7 +1163,6 @@ pivotDF.show(truncate=False)
 
 
 """ unpivot """
-""" unpivot """
 unpivotExpr = "stack(3, 'Canada', Canada, 'China', China, 'Mexico', Mexico) as (Country,Total)"
 unPivotDF = pivotDF.select("Product", expr(unpivotExpr)) \
     .where("Total is not null")
@@ -1259,16 +1170,8 @@ unPivotDF.show(truncate=False)
 
 ######################################################################################
 ######## pyspark-rdd-broadcast.py##################################################
-
-'''
-Created on Sat Jan 11 19:38:27 2020
-
- 
-'''
-
 import pyspark
 from pyspark.sql import SparkSession
-
 spark = SparkSession.builder.appName('SparkByExamples.com').getOrCreate()
 
 states = {"NY":"New York", "CA":"California", "FL":"Florida"}
@@ -1292,13 +1195,6 @@ print(result)
 
 ######################################################################################
 ######## pyspark-rdd-to-dataframe.py##################################################
-
-'''
-Created on Sat Jan 11 19:38:27 2020
-
- 
-'''
-
 import pyspark
 from pyspark.sql import SparkSession
 
@@ -1337,17 +1233,18 @@ deptDF1.show(truncate=False)
 
 
 
+df.printSchema()
+
+
+df =  spark.read.options(header=True, delimiter=",")\
+      .csv("resources/zipcodes.csv")
+
+df.printSchema()
+
 
 
 ######################################################################################
 ######## pyspark-read-csv.py##################################################
-
-"""
-Created on Sat Jun 13 21:08:30 2020
-
-@author: NNK
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField, StringType, IntegerType 
@@ -1356,18 +1253,18 @@ from pyspark.sql.functions import col,array_contains
 
 spark = SparkSession.builder.appName('SparkByExamples.com').getOrCreate()
 
-df = spark.read.csv("C:/apps/sparkbyexamples/src/pyspark-examples/resources/zipcodes.csv")
+df = spark.read.csv("resources/zipcodes.csv")
 
 df.printSchema()
 
 df2 = spark.read.option("header",True) \
-     .csv("C:/apps/sparkbyexamples/src/pyspark-examples/resources/zipcodes.csv")
+     .csv("resources/zipcodes.csv")
 df2.printSchema()
    
 
 
 df3 = spark.read.options(header='True', delimiter=',') \
-  .csv("C:/apps/sparkbyexamples/src/pyspark-examples/resources/zipcodes.csv")
+  .csv("resources/zipcodes.csv")
 df3.printSchema()
 
 
@@ -1396,28 +1293,23 @@ schema = StructType() \
 df_with_schema = spark.read.format("csv") \
       .option("header", True) \
       .schema(schema) \
-      .load("C:/apps/sparkbyexamples/src/pyspark-examples/resources/zipcodes.csv")
+      .load("resources/zipcodes.csv")
 df_with_schema.printSchema()
 
 df2.write.option("header",True) \
  .csv("/tmp/spark_output/zipcodes123")
  
 
+schema = StructType()
+schema = schema.add("RecordNumber", IntegerType(), True) \
+
+
 ######################################################################################
 ######## pyspark-rename-column.py##################################################
-
-'''
-Created on Sat Jan 11 19:38:27 2020
-
- 
-'''
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField, StringType, IntegerType
 from pyspark.sql.functions import *
-
-
 spark = SparkSession.builder.appName('SparkByExamples.com').getOrCreate()
 
 
@@ -1493,11 +1385,6 @@ df.toDF(newColumns) \
 
 ######################################################################################
 ######## pyspark-repartition.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 spark = SparkSession.builder.appName('SparkByExamples.com') \
@@ -1530,13 +1417,6 @@ rdd3.saveAsTextFile("c:/tmp/coalesce2")
 
 ######################################################################################
 ######## pyspark-select-columns.py##################################################
-
-"""
-Created on Sat Jun 13 21:08:30 2020
-
-@author: NNK
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 
@@ -1562,7 +1442,6 @@ df.select(df.firstname,df.lastname).show()
 # Using col function
 from pyspark.sql.functions import col
 df.select(col("firstname"),col("lastname")).show()
-
 
 
 data = [
@@ -1594,15 +1473,8 @@ df2.select("name.firstname","name.lastname").show(truncate=False)
 df2.select("name.*").show(truncate=False)
 
 
-
-
 ######################################################################################
-######## pyspark-sparksession.py##################################################
-
-"""
- 
-"""
-
+######## pyspark-sparksession.py#######################################################
 import pyspark
 from pyspark.sql import SparkSession
 spark = SparkSession.builder.master("local[1]") \
@@ -1631,11 +1503,6 @@ print("Master :"+sparkSession3.sparkContext.master);
 
 ######################################################################################
 ######## pyspark-structtype.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField, StringType, IntegerType,ArrayType,MapType
@@ -1701,9 +1568,7 @@ updatedDF.printSchema()
 updatedDF.show(truncate=False)
 
 
-""" Array & Map"""
-
-
+################ """ Array & Map"""
 arrayStructureSchema = StructType([
     StructField('name', StructType([
        StructField('firstname', StringType(), True),
@@ -1718,11 +1583,6 @@ arrayStructureSchema = StructType([
 
 ######################################################################################
 ######## pyspark-types.py##################################################
-
-"""
-Created on Sun Jun 14 10:20:19 2020
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.types import DataType
@@ -1741,16 +1601,10 @@ print(arrayType.typeName)
 
 ######################################################################################
 ######## pyspark-udf.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, udf
 from pyspark.sql.types import StringType
-
 spark = SparkSession.builder.appName('SparkByExamples.com').getOrCreate()
 
 columns = ["Seqno","Name"]
@@ -1769,7 +1623,7 @@ def convertCase(str):
        resStr= resStr + x[0:1].upper() + x[1:len(x)] + " "
     return resStr 
 
-""" Converting function to UDF """
+##### """ Converting function to UDF """
 convertUDF = udf(lambda z: convertCase(z))
 
 df.select(col("Seqno"), \
@@ -1786,7 +1640,8 @@ upperCaseUDF = udf(lambda z:upperCase(z),StringType())
 df.withColumn("Cureated Name", upperCase(col("Name"))) \
 .show(truncate=False)
 
-""" Using UDF on SQL """
+
+##########""" Using UDF on SQL """
 spark.udf.register("convertUDF", convertCase,StringType())
 df.createOrReplaceTempView("NAME_TABLE")
 spark.sql("select Seqno, convertUDF(Name) as Name from NAME_TABLE") \
@@ -1796,8 +1651,8 @@ spark.sql("select Seqno, convertUDF(Name) as Name from NAME_TABLE " + \
           "where Name is not null and convertUDF(Name) like '%John%'") \
      .show(truncate=False)  
      
-""" null check """
 
+####### """ null check """
 columns = ["Seqno","Name"]
 data = [("1", "john jones"),
     ("2", "tracey smith"),
@@ -1825,11 +1680,6 @@ spark.sql("select Seqno, _nullsafeUDF(Name) as Name from NAME_TABLE2 " + \
 
 ######################################################################################
 ######## pyspark-union.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 
@@ -1869,11 +1719,6 @@ unionAllDF.show(truncate=False)
 
 ######################################################################################
 ######## pyspark-window-functions.py##################################################
-
-"""
- 
-"""
-
 import pyspark
 from pyspark.sql import SparkSession
 
@@ -1943,12 +1788,10 @@ df.withColumn("row",row_number().over(windowSpec)) \
   .where(col("row")==1).select("department","avg","sum","min","max") \
   .show()
 
+
+
 ######################################################################################
 ######## pyspark-withcolumn.py##################################################
-
-"""
-Created on Sun Jun 14 10:20:19 2020
-"""
 import pyspark
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit
@@ -2009,7 +1852,6 @@ schemaStruct = StructType([
          StructField('gender', StringType(), True),
          StructField('salary', StringType(), True)
          ])
-
 
 df7 = spark.createDataFrame(data=dataStruct, schema = schemaStruct)
 df7.printSchema()

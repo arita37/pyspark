@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ebd3b443-eaf5-4c5c-a5e8-3055a7eec32e" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ProjectId" id="1lEDBIvwsEn4wVqV4mtWc90zQC2" />
+  <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="false" />
+    <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="ToolWindowPython Console.ShowToolbar" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Language Defaults" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\_devs\Python01\gitdev\aapyspark" />
+    </key>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ebd3b443-eaf5-4c5c-a5e8-3055a7eec32e" name="Default Changelist" comment="" />
+      <created>1607153220688</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1607153220688</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="210" y="134" key="SettingsEditor" timestamp="1607172236612">
+      <screen x="0" y="0" width="1986" height="1152" />
+    </state>
+    <state x="208" y="134" key="SettingsEditor/0.0.1970.1152@0.0.1970.1152" timestamp="1607162686448" />
+    <state x="210" y="134" key="SettingsEditor/0.0.1986.1152@0.0.1986.1152" timestamp="1607172236612" />
+    <state x="714" y="317" width="540" height="524" key="StructurePopup" timestamp="1607167635932">
+      <screen x="0" y="0" width="1986" height="1152" />
+    </state>
+    <state x="714" y="317" width="540" height="524" key="StructurePopup/0.0.1986.1152@0.0.1986.1152" timestamp="1607167635932" />
+    <state width="600" height="428" key="javadoc.popup" timestamp="1607153914512">
+      <screen x="0" y="0" width="1970" height="1152" />
+    </state>
+    <state width="600" height="428" key="javadoc.popup/0.0.1970.1152@0.0.1970.1152" timestamp="1607153914512" />
+    <state x="484" y="257" width="678" height="678" key="search.everywhere.popup" timestamp="1607181943645">
+      <screen x="0" y="0" width="1986" height="1152" />
+    </state>
+    <state x="480" y="257" width="672" height="678" key="search.everywhere.popup/0.0.1970.1152@0.0.1970.1152" timestamp="1607153924942" />
+    <state x="484" y="257" width="678" height="678" key="search.everywhere.popup/0.0.1986.1152@0.0.1986.1152" timestamp="1607181943645" />
+  </component>
+</project>
