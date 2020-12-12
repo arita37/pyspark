@@ -56,11 +56,12 @@ var_pop, var_samp
 
 
 ##### Operations   ###################################################################
+from pyspark.sql.functions import  (
 isnan
 isnull
 expr   ### execute dynamically  df.select(expr("length(name)")).collect()
 when    # df.select(when(df['age'] == 2, 3).otherwise(4).alias("age")).collect()
-
+)
 
 
 #### Array   #########################################################################
@@ -83,15 +84,17 @@ get_json_object, from_json, schema_of_json, json_tuple, to_json
 
 
 ##### map, dictionnary   ####################################################################
+from pyspark.sql.functions import  (
 create_map  ## dictionnary key,value df.select(create_map('name', 'age').alias("map")).collect()
 map_concat
 map_from_arrays
 map_from_entries
 map_keys
 map_values
-
+)
 
 ##### Ordering functions  #######################################################
+from pyspark.sql.functions import  (
 asc
 asc_nulls_first
 asc_nulls_last
@@ -99,10 +102,14 @@ dense_rank
 desc
 desc_nulls_first
 desc_nulls_last
-
+)
 
 
 #### Window   ######################################################################
+from pyspark.sql.functions import  ( lag, lead, percent_rank, cume_dist, ntil, rank
+)
+
+
 lag(col, count=1, default=None)  # Window function: returns the value that is offset rows before the current row
 lead(col, count=1, default=None)   #   Window function: returns the value that is offset rows after the current row,
 percent_rank
@@ -112,8 +119,13 @@ rank    # Window function: returns the rank of rows within a window partition.
 
 
 
-
 #### Column   ##################################################################
+from pyspark.sql.functions import  (
+concat, concat_ws, collect_list, collect_set, explode, 
+explode_outer, flatten, greatest, least, posexplode, posexplode_outer, struct
+)
+
+
 concat(*col)      #  Concatenates multiple input columns together into a single column. The function works with strings, binary and
 concat_ws(sep=";", *col)   #  speration Concatenates multiple input string columns together into a single string column, using the given separator.
 collect_list   ##   df2.agg(collect_list('age')).collect()   Aggregate function: returns a list of objects with duplicates.
@@ -129,12 +141,23 @@ struct  ## new struct columns,  df.select(struct('age', 'name').alias("struct"))
 
 
 #### Rows Agg operation  #######################################################
+from pyspark.sql.functions import  (
+grouping, grouping_id, first, last  )
+
+
 grouping      #  df.cube("name").agg(grouping("name"), sum("age")).orderBy("name").show()
 grouping_id   # df.cube("name").agg(grouping_id(), sum("age")).orderBy("name").show()  returns the level of grouping,
 first   ###  1st row
 last    ###  last row
 
 
+
+#### Various
+from pyspark.sql.functions import  (
+  format_number, format_string, PandasUDFType, pandas_udfE, udf, broadcast, coalesce, col,  
+  column, input_file_name, lit, row_number, 
+  monotonically_increasing_id, spark_partition_id 
+)
 
 
 
@@ -145,8 +168,6 @@ pandas_udfE   ## Vectorize UDF
 udf
 broadcast   #  Marks a DataFrame as small enough for use in broadcast joins.
 coalesce    ###
-
-
 col  ,  column #   a Column based on the given column name.
 input_file_name()   #Creates a string column for the file name of the current Spark task.
 lit

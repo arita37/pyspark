@@ -50,7 +50,38 @@ for fname in flist :
 
 
 
+coalesce(numPartitions)[source]
+Returns a new DataFrame that has exactly numPartitions partitions.
 
+Parameters:	numPartitions – int, to specify the target number of partitions
+Similar to coalesce defined on an RDD, this operation results in a narrow dependency, e.g. if you go from 1000 partitions to 100 partitions, there will not be a shuffle, instead each of the 100 new partitions will claim 10 of the current partitions. If a larger number of partitions is requested, it will stay at the current number of partitions.
+
+However, if you’re doing a drastic coalesce, e.g. to numPartitions = 1, this may result in your computation taking place on fewer nodes than you like (e.g. one node in the case of numPartitions = 1). To avoid this, you can call repartition(). This will add a shuffle step, but means the current upstream partitions will be executed in parallel (per whatever the current partitioning is).
+
+>>> df.coalesce(1).rdd.getNumPartitions()
+1
+
+
+foreach(f)[source]
+Applies the f function to all Row of this DataFrame.
+
+This is a shorthand for df.rdd.foreach().
+
+>>> def f(person):
+...     print(person.name)
+>>> df.foreach(f)
+
+
+
+foreachPartition(f)[source]
+Applies the f function to each partition of this DataFrame.
+
+This a shorthand for df.rdd.foreachPartition().
+
+>>> def f(people):
+...     for person in people:
+...         print(person.name)
+>>> df.foreachPartition(f)
 
 
 

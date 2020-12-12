@@ -34,6 +34,148 @@ df.printSchema()
 
 
 
+###SparkContext
+### Candidates are expected to know how to use the SparkContext to control basic configuration
+### settings such as spark.sql.shuffle.partitions.
+
+spark.conf.set("spark.sql.shuffle.partitions", 6)
+spark.conf.set("spark.executor.memory", "2g")
+print(spark.conf.get("spark.sql.shuffle.partitions"), ",", spark.conf.get("spark.executor.memory"))
+
+%sql
+SET spark.sql.shuffle.partitions = 8;
+SET spark.executor.memory = 4g;
+print(spark.conf.get("spark.sql.shuffle.partitions"), ",", spark.conf.get("spark.executor.memory"))
+
+
+
+
+### SparkSession
+### Candidates are expected to know how to:
+## Create a DataFrame/Dataset from a collection (e.g. list or set)
+
+from pyspark.sql.types import IntegerType
+
+list_df = spark.createDataFrame([1, 2, 3, 4], IntegerType())
+display(my_list_df)
+
+###Create a DataFrame for a range of numbers 
+ints_df = spark.range(1000).toDF("number")
+display(ints_df)
+
+
+
+## Access the DataFrameReaders
+df = spark.read.csv('/FileStore/tables/input.csv', inferSchema=True)
+# spark.read.parquet()
+# spark.read.json()
+# spark.read.format().open()
+
+
+
+### Register User Defined Functions (UDFs)
+from pyspark.sql.functions import udf
+from pyspark.sql.types import IntegerType
+
+def power3(value):
+  return value ** 3
+
+spark.udf.register("power3py", power3, IntegerType())
+power3udf = udf(power3, IntegerType())
+
+
+#### SQL
+power3_ints_df = ints_df.select("number", power3udf("number").alias("power3"))
+display(power3_ints_df)
+spark.range(1, 20).registerTempTable("test")
+
+
+
+#### DataFrameReader
+#### Read data for the "core" data formats (CSV, JSON, JDBC, ORC, Parquet, text and tables)
+data_file = "/FileStore/tables/sales.csv"
+
+df = spark.read.csv(data_file)
+display(df)
+
+
+#### How to configure options for specific formats
+df = spark.read.csv(data_file, header=True, inferSchema=True)
+display(df)
+
+### How to read data from non-core formats using format() and load()
+df = spark.read.format("csv").option("inferSchema","true").option("header","true").load(data_file)
+
+
+###3 How to construct and specify a schema using the StructType classes
+from pyspark.sql.types import StructField, StructType, StringType, LongType
+
+myManualSchema = StructType([
+  StructField("field1", StringType()),
+  StructField("field2", StringType()),
+  StructField("field3", StringType())
+])
+
+df3 = spark.read.format("csv").schema(myManualSchema).option("header","true").load(data_file)
+df3.show()
+
+
+### How to specify a DDL-formatted schema
+### DataFrameWriter
+### Write data to the "core" data formats (csv, json, jdbc, orc, parquet, text and tables)
+df.write.parquet('myparquetfile')
+df.write.saveAsTable('mytable')
+
+
+###### Overwriting existing files
+### #df.write.mode("overwrite")
+### How to configure options for specific formats
+csvFile = (spark.read.format("csv")
+  .option("header", "true")
+  .option("inferSchema", "true")
+  .load(data_file))
+
+csvFile.write.format("csv").mode("overwrite").option("sep", "\t").save("my-tsv-file.tsv")
+How to write a data source to 1 single file or N separate files
+# df.coalesce(1) 
+# df.repartition(1)
+
+
+##########################################################################################
+### How to write partitioned data
+### How to bucket data by a given set of columns
+(df
+    .write
+    .partitionBy("ProductKey")
+    .bucketBy(42, "OrderDateKey")
+    .saveAsTable("orders_partitioned_bucketed"))
+
+#### DataFrame
+Have a working understanding of every action such as take(), collect(), and foreach()
+Have a working understanding of the various transformations and how they work such as producing a distinct set, filtering data, repartitioning and coalescing, performing joins and unions as well as producing aggregates
+Know how to cache data, specifically to disk, memory or both
+
+
+from pyspark.storagelevel import StorageLevel
+df.persist(StorageLevel.MEMORY_AND_DISK)
+
+
+#####  Know how to uncache previously cached data
+df.unpersist()
+Converting a DataFrame to a global or temp view
+# df.createOrReplaceTempView("<table-name>")
+Applying hints
+# df.join(df2.hint("broadcast"), "name").show()
+
+
+
+
+
+
+
+
+
+
 #################################################################################################
 ########## Array Operations   ###################################################################
 from pyspark.sql import functions as F
