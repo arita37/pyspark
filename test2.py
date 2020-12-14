@@ -1,13 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sat Dec 12 21:57:31 2020
-
-@author: dellbook
-"""
-
-
-
-
 import findspark
 findspark.init()
 
@@ -52,13 +42,6 @@ df.withColumn('rank1',  dense_rank().over(ws)  ).show()
 
 
 ws_agg = Windows.partitionBy('department')
-
-
-
-spark.createDataFrame(simpleData, schema)
-
-
-
 
 
 
