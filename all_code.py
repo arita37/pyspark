@@ -80,18 +80,6 @@ from pyspark.sql.types import IntegerType
 def power3(value):
   return value ** 3
 
-spark.udf.register("power3py", power3, IntegerType())
-power3udf = udf(power3, IntegerType())
-
-
-#### SQL
-power3_ints_df = ints_df.select("number", power3udf("number").alias("power3"))
-display(power3_ints_df)
-spark.range(1, 20).registerTempTable("test")
-
-
-
-#### DataFrameReader
 #### Read data for the "core" data formats (CSV, JSON, JDBC, ORC, Parquet, text and tables)
 data_file = "/FileStore/tables/sales.csv"
 
@@ -105,6 +93,18 @@ display(df)
 
 ### How to read data from non-core formats using format() and load()
 df = spark.read.format("csv").option("inferSchema","true").option("header","true").load(data_file)
+spark.udf.register("power3py", power3, IntegerType())
+power3udf = udf(power3, IntegerType())
+
+
+#### SQL
+power3_ints_df = ints_df.select("number", power3udf("number").alias("power3"))
+display(power3_ints_df)
+spark.range(1, 20).registerTempTable("test")
+
+
+
+#### DataFrameReader
 
 
 ###3 How to construct and specify a schema using the StructType classes
