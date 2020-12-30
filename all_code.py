@@ -32,6 +32,8 @@ df.printSchema()
 
 
 
+https://umbertogriffo.gitbook.io/apache-spark-best-practices-and-tuning/rdd/dont_use_count_when_you_dont_need_to_return_the_ex
+
 
 
 ###SparkContext
@@ -80,6 +82,18 @@ from pyspark.sql.types import IntegerType
 def power3(value):
   return value ** 3
 
+spark.udf.register("power3py", power3, IntegerType())
+power3udf = udf(power3, IntegerType())
+
+
+#### SQL
+power3_ints_df = ints_df.select("number", power3udf("number").alias("power3"))
+display(power3_ints_df)
+spark.range(1, 20).registerTempTable("test")
+
+
+
+#### DataFrameReader
 #### Read data for the "core" data formats (CSV, JSON, JDBC, ORC, Parquet, text and tables)
 data_file = "/FileStore/tables/sales.csv"
 
@@ -93,6 +107,7 @@ display(df)
 
 ### How to read data from non-core formats using format() and load()
 df = spark.read.format("csv").option("inferSchema","true").option("header","true").load(data_file)
+<<<<<<< HEAD
 spark.udf.register("power3py", power3, IntegerType())
 power3udf = udf(power3, IntegerType())
 
@@ -140,6 +155,8 @@ word_prob_b = spark.sparkContext.broadcast(word_prob)
 
 
 #### DataFrameReader
+=======
+>>>>>>> 9861b526dba7928eb3fadca7378ddaa32d50d1bb
 
 
 ###3 How to construct and specify a schema using the StructType classes
@@ -174,6 +191,19 @@ csvFile.write.format("csv").mode("overwrite").option("sep", "\t").save("my-tsv-f
 How to write a data source to 1 single file or N separate files
 # df.coalesce(1) 
 # df.repartition(1)
+
+
+
+
+Spark doesn’t adjust the number of partitions when a large DataFrame is filtered, so the dataPuddle will also have 13,000 partitions. The dataPuddle only contains 2,000 rows of data, so a lot of the partitions will be empty. It’s not efficient to read or write thousands of empty text files to S3 — we should improve this code by repartitioning.
+val dataPuddle = dataLake.sample(true, 0.000001)
+val goodPuddle = dataPuddle.repartition(4)
+goodPuddle.write.parquet("s3a://my_bucket/puddle/")
+Why did we choose 4 partitions for the data puddle?
+The data is a million times smaller, so we reduce the number of partitions by a million and keep the same amount of data per partition. 13,000 partitions / 1,000,000 = 1 partition (rounded up). We used 4 partitions so the data puddle can leverage the parallelism of Spark.
+In general, you can determine the number of partitions by multiplying the number of CPUs in the cluster by 2, 3, or 4 (see more here and here).
+
+
 
 
 ##########################################################################################
