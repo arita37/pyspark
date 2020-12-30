@@ -104,6 +104,41 @@ spark.range(1, 20).registerTempTable("test")
 
 
 
+
+##### Export into ONE SINGLE FILE
+https://github.com/MrPowers/quinn
+df.coalesce(1).write
+https://mungingdata.com/apache-spark/output-one-file-csv-parquet/
+
+
+### Dict mapping UDF :
+# https://mungingdata.com/pyspark/udf-dict-broadcast/
+def working_fun(mapping_broadcasted):
+    def f(x):
+        return mapping_broadcasted.value.get(x)
+    return F.udf(f)
+df = spark.createDataFrame([
+    ['Alabama',],
+    ['Texas',],
+    ['Antioquia',]
+]).toDF('state')
+mapping = {'Alabama': 'AL', 'Texas': 'TX'}
+b = spark.sparkContext.broadcast(mapping)
+
+
+df.withColumn('state_abbreviation', working_fun(b)(F.col('state'))).show()
+
+
+df = spark\
+    .read\
+    .option('header', True)\
+    .csv(word_prob_path)
+word_prob = {x['word']: x['word_prob'] for x in df.select('word', 'word_prob').collect()}
+word_prob_b = spark.sparkContext.broadcast(word_prob)
+
+
+
+
 #### DataFrameReader
 
 
